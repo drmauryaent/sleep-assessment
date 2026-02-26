@@ -17,6 +17,7 @@ button{background:#244c9c;color:white;border:none;padding:15px;width:100%;border
 .section{margin-top:25px;border-top:2px solid #eee;padding-top:15px}
 .result{font-weight:bold;text-align:center;margin-top:15px;font-size:18px}
 .flex{display:flex;gap:10px}
+.bmiBox{background:#f4f7ff;padding:10px;border-radius:8px;margin-top:10px}
 </style>
 
 </head>
@@ -40,6 +41,11 @@ button{background:#244c9c;color:white;border:none;padding:15px;width:100%;border
 
 <label>Weight (kg)</label><input id="weight" type="number">
 
+<div class="bmiBox">
+<b>Your BMI:</b> <span id="bmiPreview">--</span>
+<div style="font-size:12px;color:gray">Auto calculated</div>
+</div>
+
 </div>
 
 <div class="section"><h2>Epworth Sleepiness Scale</h2><div id="epworth"></div></div>
@@ -54,6 +60,37 @@ button{background:#244c9c;color:white;border:none;padding:15px;width:100%;border
 
 <script>
 emailjs.init("lrx4dnUyu05YNiHY0");
+
+/* LIVE BMI CALCULATION */
+function calculateBMI(){
+let feet=document.getElementById("feet").value;
+let inches=document.getElementById("inches").value;
+let weight=document.getElementById("weight").value;
+
+if(!feet || !weight){
+document.getElementById("bmiPreview").innerHTML="--";
+return;
+}
+
+let totalInches=(Number(feet)*12)+Number(inches);
+let heightMeters=totalInches*0.0254;
+if(heightMeters<=0) return;
+
+let bmi=(weight/(heightMeters*heightMeters)).toFixed(1);
+
+let category="Normal",color="green";
+if(bmi<18.5){category="Underweight";color="orange";}
+else if(bmi<25){category="Normal";color="green";}
+else if(bmi<30){category="Overweight";color="orange";}
+else{category="Obese";color="red";}
+
+document.getElementById("bmiPreview").innerHTML=
+`<b style="color:${color}">${bmi}</b> (${category})`;
+}
+
+document.getElementById("feet").addEventListener("input",calculateBMI);
+document.getElementById("inches").addEventListener("input",calculateBMI);
+document.getElementById("weight").addEventListener("input",calculateBMI);
 
 /* QUESTIONS */
 
@@ -77,7 +114,6 @@ let snotQ=[
 
 /* BUILD FORMS */
 function build(){
-
 epworthQ.forEach((q,i)=>{
 document.getElementById("epworth").innerHTML+=
 `<label>${q}</label>
@@ -106,7 +142,6 @@ document.getElementById("snot").innerHTML+=
 <option>3</option><option>4</option><option>5</option>
 </select>`;
 });
-
 }
 build();
 
@@ -122,28 +157,23 @@ let heightMeters=totalInches*0.0254;
 let bmi=(weight/(heightMeters*heightMeters)).toFixed(1);
 
 /* EPWORTH */
-let ep=0;
-let epworthDetails="";
+let ep=0,epworthDetails="";
 for(let i=0;i<8;i++){
 let val=document.getElementById("e"+i).value;
 ep+=Number(val);
-
 let meaning=["Never","Slight","Moderate","High"][val];
 let color=(val==3)?"red":(val==2?"orange":"black");
-
 epworthDetails+=`<div>${epworthQ[i]} : <b style="color:${color}">${val} (${meaning})</b></div>`;
 }
 let epRisk= ep>=10 ? "Concern" : "Normal";
 
 /* STOPBANG */
-let sb=0;
-let stopbangDetails="";
+let sb=0,stopbangDetails="";
 for(let i=0;i<8;i++){
 let val=document.getElementById("b"+i).value;
 sb+=Number(val);
 let ans=(val==1?"Yes":"No");
 let color=(val==1)?"red":"black";
-
 stopbangDetails+=`<div>${stopbangQ[i]} : <b style="color:${color}">${ans}</b></div>`;
 }
 let sbRisk="Low";
