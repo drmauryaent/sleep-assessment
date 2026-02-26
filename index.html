@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep Disorder Assessment</title>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<style>
+body{font-family:Arial;background:#eef3ff;margin:0}
+.container{max-width:700px;margin:auto;background:white;padding:20px;border-radius:12px;margin-top:15px}
+h2{color:#244c9c}
+label{font-weight:bold}
+select,input{width:100%;padding:10px;margin:6px 0 12px;border-radius:8px;border:1px solid #ccc}
+button{background:#244c9c;color:white;border:none;padding:15px;width:100%;border-radius:10px;font-size:16px}
+.section{margin-top:25px;border-top:2px solid #eee;padding-top:15px}
+.result{font-weight:bold;text-align:center;margin-top:15px;font-size:18px}
+.flex{display:flex;gap:10px}
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+<h2>Sleep Disorder Self Assessment</h2>
+
+<div class="section">
+<label>Name</label><input id="name">
+<label>Age</label><input id="age" type="number">
+<label>Phone</label><input id="phone">
+
+<label>Height</label>
+
+<div class="flex">
+<input id="feet" type="number" placeholder="Feet">
+<input id="inches" type="number" placeholder="Inches">
+</div>
+
+<label>Weight (kg)</label><input id="weight" type="number">
+
+</div>
+
+<div class="section"><h2>Epworth Sleepiness Scale</h2><div id="epworth"></div></div>
+<div class="section"><h2>STOP-BANG</h2><div id="stopbang"></div></div>
+<div class="section"><h2>SNOT-22</h2><div id="snot"></div></div>
+
+<button onclick="submitForm()">Submit Assessment</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+emailjs.init("lrx4dnUyu05YNiHY0");
+
+/* QUESTIONS */
+
+let epworthQ=[
+"Sitting and reading ","Watching TV","Sitting inactive in public place(e.g. in a meeting, theater, or dinner event)",
+"Passenger driving in car for 1 hour or more without stopping for a break","Lying down to rest when circumstances permit","Talking to someone to someone",
+"After lunch quietly after a meal without alcohol","In car stopped in traffic for a few minutes in traffic or at a light"
+];
+
+let stopbangQ=[
+"Do you SNORE loudly (louder than talking or loud enough to be heard through closed doors)?","Do you often feel TIRED, fatigued, or sleepy during daytime?","Has anyone OBSERVED you stop breathing during your sleep?","Do you have or are you being treated for high blood PRESSURE?","BMI more than 35kg/m2?","AGE over 50 years old?","NECK circumference > 16 inches (40cm)?","GENDER: Male?"
+];
+
+let snotQ=[
+"Need to blow nose","Nasal blockage","Sneezing","Runny nose","Cough",
+"Post nasal discharge","Thick discharge","Ear fullness","Dizziness","Ear pain",
+"Facial pain","Loss smell","Difficulty sleep","Wake at night","Bad sleep",
+"Wake tired","Fatigue","Reduced productivity","Poor concentration",
+"Irritable","Sad","Embarrassed"
+];
+
+/* BUILD FORMS */
+function build(){
+
+epworthQ.forEach((q,i)=>{
+document.getElementById("epworth").innerHTML+=
+`<label>${q}</label>
+<select id="e${i}">
+<option value=0>0 - Never</option>
+<option value=1>1 - Slight</option>
+<option value=2>2 - Moderate</option>
+<option value=3>3 - High</option>
+</select>`;
+});
+
+stopbangQ.forEach((q,i)=>{
+document.getElementById("stopbang").innerHTML+=
+`<label>${q}</label>
+<select id="b${i}">
+<option value=0>No</option>
+<option value=1>Yes</option>
+</select>`;
+});
+
+snotQ.forEach((q,i)=>{
+document.getElementById("snot").innerHTML+=
+`<label>${q}</label>
+<select id="s${i}">
+<option>0</option><option>1</option><option>2</option>
+<option>3</option><option>4</option><option>5</option>
+</select>`;
+});
+
+}
+build();
+
+/* SUBMIT */
+function submitForm(){
+
+let feet=document.getElementById("feet").value;
+let inches=document.getElementById("inches").value;
+let weight=document.getElementById("weight").value;
+
+let totalInches=(Number(feet)*12)+Number(inches);
+let heightMeters=totalInches*0.0254;
+let bmi=(weight/(heightMeters*heightMeters)).toFixed(1);
+
+/* EPWORTH */
+let ep=0;
+let epworthDetails="";
+for(let i=0;i<8;i++){
+let val=document.getElementById("e"+i).value;
+ep+=Number(val);
+
+let meaning=["Never","Slight","Moderate","High"][val];
+let color=(val==3)?"red":(val==2?"orange":"black");
+
+epworthDetails+=`<div>${epworthQ[i]} : <b style="color:${color}">${val} (${meaning})</b></div>`;
+}
+let epRisk= ep>=10 ? "Concern" : "Normal";
+
+/* STOPBANG */
+let sb=0;
+let stopbangDetails="";
+for(let i=0;i<8;i++){
+let val=document.getElementById("b"+i).value;
+sb+=Number(val);
+let ans=(val==1?"Yes":"No");
+let color=(val==1)?"red":"black";
+
+stopbangDetails+=`<div>${stopbangQ[i]} : <b style="color:${color}">${ans}</b></div>`;
+}
+let sbRisk="Low";
+if(sb>=5) sbRisk="High Risk";
+else if(sb>=3) sbRisk="Intermediate Risk";
+
+/* SNOT */
+let snotText="";
+for(let i=0;i<22;i++){
+let val=document.getElementById("s"+i).value;
+let color=(val>0)?"red":"black";
+snotText+=`<div>${snotQ[i]} : <b style="color:${color}">${val}</b></div>`;
+}
+
+document.getElementById("result").innerHTML="Epworth:"+ep+" | STOPBANG:"+sb+" ("+sbRisk+")";
+
+emailjs.send("service_gwrirqk","template_hdbbj1d",{
+name:document.getElementById("name").value,
+age:document.getElementById("age").value,
+phone:document.getElementById("phone").value,
+height:feet+" ft "+inches+" in",
+weight:weight,
+bmi:bmi,
+epworth:ep,
+epworthRisk:epRisk,
+epworthDetails:epworthDetails,
+stopbang:sb,
+stopbangRisk:sbRisk,
+stopbangDetails:stopbangDetails,
+snot:snotText,
+time:new Date().toLocaleString()
+}).then(()=>alert("Report Sent to Doctor"));
+}
+</script>
+
+</body>
+</html>
