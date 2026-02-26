@@ -138,8 +138,12 @@ snotQ.forEach((q,i)=>{
 document.getElementById("snot").innerHTML+=
 `<label>${q}</label>
 <select id="s${i}">
-<option>0</option><option>1</option><option>2</option>
-<option>3</option><option>4</option><option>5</option>
+<option>0 - Never</option>
+<option>1 - Very Mild</option>
+<option>2 - Mild or slight</option>
+<option>3 - Moderate</option>
+<option>4 - Severe</option>
+<option>5 - Problem as bad as it can be</option>
 </select>`;
 });
 }
@@ -211,3 +215,4 @@ time:new Date().toLocaleString()
 
 </body>
 </html>
+
