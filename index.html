@@ -118,10 +118,10 @@ epworthQ.forEach((q,i)=>{
 document.getElementById("epworth").innerHTML+=
 `<label>${q}</label>
 <select id="e${i}">
-<option value=0>0 - Never</option>
-<option value=1>1 - Slight</option>
-<option value=2>2 - Moderate</option>
-<option value=3>3 - High</option>
+<option value=0>0 - Would never doze or fall asleep</option>
+<option value=1>1 - Slight chance of dozing or falling asleep</option>
+<option value=2>2 - Moderate chance of dozing or falling asleep</option>
+<option value=3>3 - High chance of dozing, falling asleep</option>
 </select>`;
 });
 
@@ -215,4 +215,5 @@ time:new Date().toLocaleString()
 
 </body>
 </html>
+
 
